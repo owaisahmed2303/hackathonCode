@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCM Lite - Manage Employees</title>
+  <link rel="stylesheet" href="employees.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h2 id="company-title">HCM Lite</h2>
+    </div>
+    <ul class="nav-links">
+      <li><a href="admin.html">Dashboard</a></li>
+      <li><a href="employees.html" class="active">Employees</a></li>
+      <li><a href="leaves.html">Leaves</a></li>
+      <li><a href="settings.html">Settings</a></li>
+    </ul>
+    <div class="user-profile">
+      <span id="admin-name-display" style="font-size: 0.9rem; font-weight: 600;">Admin</span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Container -->
+  <div class="container">
+    <div class="page-header">
+      <h1>Manage Employees</h1>
+      <button class="btn-primary" onclick="openModal()">+ Add Employee</button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <input type="text" id="search-input" placeholder="Search by name or email..." oninput="filterEmployees()">
+      <select id="designation-filter" onchange="filterEmployees()">
+        <option value="">All Designations</option>
+      </select>
+    </div>
+
+    <!-- Employees List -->
+    <div class="card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Designation</th>
+              <th>Monthly Salary ($)</th>
+              <th>Joining Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employee-list">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted);">No employees added yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Employee Modal -->
+  <div class="modal-overlay hidden" id="employee-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Add Employee</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="employee-form" onsubmit="saveEmployee(event)">
+        <input type="hidden" id="emp-id">
+        <div class="form-group">
+          <label for="emp-name">Full Name</label>
+          <input type="text" id="emp-name" required placeholder="e.g. Jane Doe">
+        </div>
+        <div class="form-group">
+          <label for="emp-email">Email (Used for Login)</label>
+          <input type="email" id="emp-email" required placeholder="jane@company.com">
+        </div>
+        <div class="form-group">
+          <label for="emp-password">Password</label>
+          <input type="password" id="emp-password" required placeholder="Account password">
+        </div>
+        <div class="form-group">
+          <label for="emp-designation">Designation</label>
+          <input type="text" id="emp-designation" required placeholder="e.g. Software Engineer">
+        </div>
+        <div class="form-group">
+          <label for="emp-salary">Monthly Basic Salary ($)</label>
+          <input type="number" id="emp-salary" min="0" required placeholder="e.g. 3000">
+        </div>
+        <div class="form-group">
+          <label for="emp-joining">Joining Date</label>
+          <input type="date" id="emp-joining" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="employees.js"></script>
+</body>
+</html>

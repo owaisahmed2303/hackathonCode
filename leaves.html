@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCM Lite - Leave Requests</title>
+  <link rel="stylesheet" href="leaves.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h2 id="company-title">HCM Lite</h2>
+    </div>
+    <ul class="nav-links">
+      <li><a href="admin.html">Dashboard</a></li>
+      <li><a href="employees.html">Employees</a></li>
+      <li><a href="leaves.html" class="active">Leaves</a></li>
+      <li><a href="settings.html">Settings</a></li>
+    </ul>
+    <div class="user-profile">
+      <span id="admin-name-display" style="font-size: 0.9rem; font-weight: 600;">Admin</span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <div class="container">
+    <div class="page-header">
+      <h1>Leave Requests</h1>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <select id="status-filter" onchange="filterLeaves()">
+        <option value="all">All Statuses</option>
+        <option value="pending" selected>Pending Only</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+
+    <!-- Leaves List -->
+    <div class="card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Dates</th>
+              <th>Days</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Admin Comment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="leaves-list">
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted);">No leave requests found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Modal for Approve/Reject -->
+  <div class="modal-overlay hidden" id="action-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Review Leave Request</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="action-form" onsubmit="submitLeaveAction(event)">
+        <input type="hidden" id="leave-id">
+        <input type="hidden" id="action-type">
+        
+        <p id="modal-desc" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;"></p>
+
+        <div class="form-group">
+          <label for="admin-comment">Admin Comment / Reason (Optional)</label>
+          <textarea id="admin-comment" rows="3" placeholder="e.g. Approved, please ensure handover."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" id="btn-submit-action" class="btn-primary">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="leaves.js"></script>
+</body>
+</html>

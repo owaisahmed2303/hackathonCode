@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCM Lite - Admin Dashboard</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-slate: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-slate);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .navbar-brand h2 {
+      font-size: 1.25rem;
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a.active, .nav-links a:hover {
+      color: var(--primary);
+      background-color: #eff6ff;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-logout {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .btn-logout:hover {
+      background-color: #fee2e2;
+      color: var(--danger);
+      border-color: #fca5a5;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .stat-card h3 {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Main Grid Section */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .badge.present { background-color: #d1fae5; color: #065f46; }
+    .badge.late { background-color: #fef3c7; color: #92400e; }
+    .badge.half-day { background-color: #e0e7ff; color: #3730a3; }
+
+    /* Smart Helper Box */
+    .smart-helper {
+      display: flex;
+      flex-direction: column;
+      height: 380px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background-color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .chat-msg {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    .chat-msg.bot {
+      background-color: #e2e8f0;
+      align-self: flex-start;
+      color: var(--text-main);
+    }
+
+    .chat-msg.user {
+      background-color: var(--primary);
+      color: white;
+      align-self: flex-end;
+    }
+
+    .chat-input-box {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chat-input-box input {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .chat-input-box button {
+      padding: 0.6rem 1rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h2 id="company-title">HCM Lite</h2>
+    </div>
+    <ul class="nav-links">
+      <li><a href="./admin.html" class="active">Dashboard</a></li>
+      <li><a href="./employees.html">Employees</a></li>
+      <li><a href="./leaves.html">Leaves</a></li>
+      <li><a href="./settings.html">Settings</a></li>
+    </ul>
+    <div class="user-profile">
+      <span id="admin-name-display" style="font-size: 0.9rem; font-weight: 600;">Admin</span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Container -->
+  <div class="container">
+    
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Employees</h3>
+        <div class="number" id="stat-total-emp">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Present Today</h3>
+        <div class="number" id="stat-present-today" style="color: var(--success);">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>On Leave Today</h3>
+        <div class="number" id="stat-on-leave">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Pending Leave Requests</h3>
+        <div class="number" id="stat-pending-leaves" style="color: var(--warning);">0</div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Today's Attendance Table -->
+      <div class="card">
+        <h3>Today's Attendance</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-list">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted);">No attendance records for today.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Smart Helper -->
+      <div class="card smart-helper">
+        <h3>Smart Helper</h3>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg bot">Hi! I can help answer questions using data stored in your app. Ask me things like "How many employees are present today?" or "Pending leaves".</div>
+        </div>
+        <div class="chat-input-box">
+          <input type="text" id="chat-input" placeholder="Type a question...">
+          <button onclick="sendChatMessage()">Send</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Storage Keys
+    const KEY_COMPANY = 'hcm_company';
+    const KEY_USERS = 'hcm_users';
+    const KEY_ATTENDANCE = 'hcm_attendance';
+    const KEY_LEAVES = 'hcm_leaves';
+    const KEY_LOGGED_IN = 'hcm_logged_in_user';
+
+    let currentUser = null;
+
+    function initPage() {
+      // Auth Guard
+      currentUser = JSON.parse(localStorage.getItem(KEY_LOGGED_IN));
+      if (!currentUser || currentUser.role !== 'admin') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Display Info
+      const company = JSON.parse(localStorage.getItem(KEY_COMPANY)) || { name: 'HCM Lite' };
+      document.getElementById('company-title').innerText = company.name;
+      document.getElementById('admin-name-display').innerText = currentUser.name;
+
+      // Load Metrics & Tables
+      renderStats();
+      renderTodayAttendance();
+    }
+
+    function renderStats() {
+      const users = JSON.parse(localStorage.getItem(KEY_USERS)) || [];
+      const employees = users.filter(u => u.role === 'employee');
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      const attendance = JSON.parse(localStorage.getItem(KEY_ATTENDANCE)) || [];
+      const todayAttendance = attendance.filter(a => a.date === todayStr);
+
+      const leaves = JSON.parse(localStorage.getItem(KEY_LEAVES)) || [];
+      const pendingLeaves = leaves.filter(l => l.status === 'pending');
+      const approvedLeavesToday = leaves.filter(l => l.status === 'approved' && l.startDate <= todayStr && l.endDate >= todayStr);
+
+      document.getElementById('stat-total-emp').innerText = employees.length;
+      document.getElementById('stat-present-today').innerText = todayAttendance.length;
+      document.getElementById('stat-on-leave').innerText = approvedLeavesToday.length;
+      document.getElementById('stat-pending-leaves').innerText = pendingLeaves.length;
+    }
+
+    function renderTodayAttendance() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const attendance = JSON.parse(localStorage.getItem(KEY_ATTENDANCE)) || [];
+      const users = JSON.parse(localStorage.getItem(KEY_USERS)) || [];
+      const todayRecords = attendance.filter(a => a.date === todayStr);
+
+      const tbody = document.getElementById('attendance-list');
+      if (todayRecords.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No attendance recorded for today.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = todayRecords.map(rec => {
+        const user = users.find(u => u.id === rec.userId) || { name: 'Unknown' };
+        return `
+          <tr>
+            <td><strong>${user.name}</strong></td>
+            <td>${rec.checkIn || '--:--'}</td>
+            <td>${rec.checkOut || '--:--'}</td>
+            <td><span class="badge ${rec.status.toLowerCase()}">${rec.status}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Smart Helper Bot Logic
+    function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendMessage(text, 'user');
+      input.value = '';
+
+      // Generate response based on app data
+      setTimeout(() => {
+        const reply = processSmartQuery(text.toLowerCase());
+        appendMessage(reply, 'bot');
+      }, 300);
+    }
+
+    function appendMessage(text, sender) {
+      const box = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = `chat-msg ${sender}`;
+      div.innerText = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function processSmartQuery(q) {
+      const users = JSON.parse(localStorage.getItem(KEY_USERS)) || [];
+      const employees = users.filter(u => u.role === 'employee');
+      const leaves = JSON.parse(localStorage.getItem(KEY_LEAVES)) || [];
+      const attendance = JSON.parse(localStorage.getItem(KEY_ATTENDANCE)) || [];
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      if (q.includes('total employee') || q.includes('how many employee')) {
+        return `There are currently ${employees.length} employees registered.`;
+      }
+      if (q.includes('present')) {
+        const todayAttendance = attendance.filter(a => a.date === todayStr);
+        return `${todayAttendance.length} employee(s) checked in today.`;
+      }
+      if (q.includes('pending') || q.includes('leave')) {
+        const pending = leaves.filter(l => l.status === 'pending');
+        return `There are ${pending.length} pending leave requests waiting for review.`;
+      }
+
+      return "I can answer questions about total employees, today's present count, or pending leave requests. Try asking: 'How many employees?' or 'Pending leaves'.";
+    }
+
+    function logout() {
+      localStorage.removeItem(KEY_LOGGED_IN);
+      window.location.href = 'index.html';
+    }
+
+    // Allow Enter key in chat input
+    document.getElementById('chat-input').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+
+    initPage();
+  </script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCM Lite - Login & Setup</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-slate: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --error: #ef4444;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-slate);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      padding: 2.5rem 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.85rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      text-align: center;
+      display: none;
+    }
+
+    .message.error {
+      display: block;
+      background-color: #fef2f2;
+      color: var(--error);
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      display: block;
+      background-color: #ecfdf5;
+      color: var(--success);
+      border: 1px solid #a7f3d0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1 id="app-title">HCM Lite</h1>
+      <p id="form-subtitle">Welcome back! Please enter your details.</p>
+    </div>
+
+    <div id="alert-msg" class="message"></div>
+
+    <form id="setup-form" class="hidden">
+      <div class="form-group">
+        <label for="company-name">Company Name</label>
+        <input type="text" id="company-name" placeholder="e.g. ABC Corporation" required>
+      </div>
+      <div class="form-group">
+        <label for="admin-name">Admin Full Name</label>
+        <input type="text" id="admin-name" placeholder="e.g. ABC" required>
+      </div>
+      <div class="form-group">
+        <label for="admin-email">Admin Email</label>
+        <input type="email" id="admin-email" placeholder="admin@company.com" required>
+      </div>
+      <div class="form-group">
+        <label for="admin-password">Admin Password</label>
+        <input type="password" id="admin-password" placeholder="Create password" required>
+      </div>
+      <button type="submit" class="btn">Complete First-Run Setup</button>
+    </form>
+
+    <form id="login-form" class="hidden">
+      <div class="form-group">
+        <label for="login-email">Email Address</label>
+        <input type="email" id="login-email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password" required>
+      </div>
+      <button type="submit" class="btn">Log In</button>
+    </form>
+  </div>
+
+  <script>
+    // LocalStorage Keys
+    const KEY_COMPANY = 'hcm_company';
+    const KEY_USERS = 'hcm_users';
+    const KEY_LOGGED_IN_USER = 'hcm_logged_in_user';
+
+    // DOM Elements
+    const setupForm = document.getElementById('setup-form');
+    const loginForm = document.getElementById('login-form');
+    const formSubtitle = document.getElementById('form-subtitle');
+    const alertMsg = document.getElementById('alert-msg');
+
+    // Initialize View
+    function init() {
+      const company = JSON.parse(localStorage.getItem(KEY_COMPANY));
+      const currentUser = JSON.parse(localStorage.getItem(KEY_LOGGED_IN_USER));
+
+      // Redirect if user is already logged in
+      if (currentUser) {
+        if (currentUser.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'employee.html';
+        }
+        return;
+      }
+
+      // Check if system is initialized
+      if (!company) {
+        // Show Setup Form
+        formSubtitle.innerText = 'Set up your company and admin account to get started.';
+        setupForm.classList.remove('hidden');
+      } else {
+        // Show Login Form
+        formSubtitle.innerText = `Sign in to ${company.name}`;
+        loginForm.classList.remove('hidden');
+      }
+    }
+
+    // Handle Setup Submission
+    setupForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const companyName = document.getElementById('company-name').value.trim();
+      const adminName = document.getElementById('admin-name').value.trim();
+      const adminEmail = document.getElementById('admin-email').value.trim().toLowerCase();
+      const adminPassword = document.getElementById('admin-password').value.trim();
+
+      if (!companyName || !adminName || !adminEmail || !adminPassword) {
+        showAlert('Please fill in all setup fields.', 'error');
+        return;
+      }
+
+      // 1. Save Company Settings
+      const companyData = {
+        name: companyName,
+        startTime: '09:00',
+        graceMinutes: 15,
+        leaveQuota: 18,
+        createdDate: new Date().toISOString()
+      };
+      localStorage.setItem(KEY_COMPANY, JSON.stringify(companyData));
+
+      // 2. Save Admin Account into Users Array
+      const adminUser = {
+        id: 'usr_' + Date.now(),
+        name: adminName,
+        email: adminEmail,
+        password: adminPassword,
+        role: 'admin',
+        designation: 'Administrator',
+        joiningDate: new Date().toISOString().split('T')[0]
+      };
+
+      const users = [adminUser];
+      localStorage.setItem(KEY_USERS, JSON.stringify(users));
+
+      // 3. Set Active Session and Redirect to Admin Dashboard
+      localStorage.setItem(KEY_LOGGED_IN_USER, JSON.stringify(adminUser));
+      showAlert('Setup complete! Redirecting...', 'success');
+
+      setTimeout(() => {
+        window.location.href = 'admin.html';
+      }, 1000);
+    });
+
+    // Handle Login Submission
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value.trim();
+
+      const users = JSON.parse(localStorage.getItem(KEY_USERS)) || [];
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (!user) {
+        showAlert('Invalid email or password.', 'error');
+        return;
+      }
+
+      // Store current user session
+      localStorage.setItem(KEY_LOGGED_IN_USER, JSON.stringify(user));
+
+      // Redirect based on role
+      if (user.role === 'admin') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'employee.html';
+      }
+    });
+
+    // Helper Function for Alerts
+    function showAlert(msg, type) {
+      alertMsg.innerText = msg;
+      alertMsg.className = `message ${type}`;
+    }
+
+    // Run on page load
+    init();
+  </script>
+</body>
+</html>
